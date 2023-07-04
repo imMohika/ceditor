@@ -42,6 +42,9 @@ void enableRawMode()
   // disable output processing (eg. converting \n to \r\n)
   raw.c_lflag &= ~(OPOST);
 
+  // disabling some misc flags...
+  raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
