@@ -3,18 +3,28 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <errno.h>
+
+void f(const char *s)
+{
+  perror(s);
+  exit(1);
+}
 
 struct termios orig_termios;
 
 void disableRawMode()
 {
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
-  //                      ^ discard any unread input
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+    //                          ^ discard any unread input ^
+    //                                                     ^ error handling at it's finest
+    f("tcsetattr");
 }
 
 void enableRawMode()
 {
-  tcgetattr(STDIN_FILENO, &orig_termios);
+  if (tcgetattr(STDIN_FILENO, &orig_termios) == -1)
+    f("tcgetattr");
   atexit(disableRawMode); // return to original atters at exist
 
   struct termios raw = orig_termios;
@@ -48,7 +58,8 @@ void enableRawMode()
   raw.c_cc[VMIN] = 0;
   raw.c_cc[VTIME] = 1; // in tenths of a second
 
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
+    f("tcsetattr");
 }
 
 int main() {
@@ -56,7 +67,8 @@ int main() {
   while (1)
   {
     char c = '\0';
-    read(STDIN_FILENO, &c, 1);
+    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
+      f("read");
 
     if (c == 'q')
       break;
