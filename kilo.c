@@ -45,14 +45,22 @@ void enableRawMode()
   // disabling some misc flags...
   raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
 
+  raw.c_cc[VMIN] = 0;
+  raw.c_cc[VTIME] = 1; // in tenths of a second
+
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
 int main() {
   enableRawMode();
-  char c;
-  while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q')
+  while (1)
   {
+    char c = '\0';
+    read(STDIN_FILENO, &c, 1);
+
+    if (c == 'q')
+      break;
+
     if (iscntrl(c))
     //  ^ checks if character is a 'control character'
     {
