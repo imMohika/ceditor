@@ -22,6 +22,9 @@ void enableRawMode()
   // ~(ECHO) gives us '00000000000000000000000000001000'
   // We then bitwise-AND this value with the flags field, which forces the fourth bit in the flags field to become 0, and causes every other bit to retain its current value
 
+  // turn off canonical mode
+  raw.c_lflag &= ~(ICANON);
+
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
