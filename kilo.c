@@ -27,6 +27,21 @@ void enableRawMode()
   // turn off canonical mode
   raw.c_lflag &= ~(ICANON);
 
+  // disable ctrl-z and ctrl-c (keys for SIGTSTP signal)
+  raw.c_lflag &= ~(ISIG);
+
+  // disable ctrl-s and ctrl-q (software flow control keys)
+  raw.c_lflag &= ~(IXON);
+
+  // disable ctrl-v and ctrl-o (on macos)
+  raw.c_lflag &= ~(IEXTEN);
+
+  // disable ctrl-m
+  raw.c_lflag &= ~(IEXTEN);
+
+  // disable output processing (eg. converting \n to \r\n)
+  raw.c_lflag &= ~(OPOST);
+
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
