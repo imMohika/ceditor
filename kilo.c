@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <errno.h>
 
+#define WITH_CTRL(k) ((k)&0x1f)
+
 void f(const char *s)
 {
   perror(s);
@@ -70,7 +72,7 @@ int main() {
     if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
       f("read");
 
-    if (c == 'q')
+    if (c == WITH_CTRL('q'))
       break;
 
     if (iscntrl(c))
