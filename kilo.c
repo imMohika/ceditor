@@ -64,10 +64,16 @@ void enableRawMode()
     f("tcsetattr");
 }
 
+void clearScreen()
+{
+  write(STDOUT_FILENO, "\x1b[2J", 4);
+}
+
 int main() {
   enableRawMode();
   while (1)
   {
+    clearScreen();
     char c = '\0';
     if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
       f("read");
