@@ -67,31 +67,40 @@ void enableRawMode()
 void clearScreen()
 {
   write(STDOUT_FILENO, "\x1b[2J", 4);
+  write(STDOUT_FILENO, "\x1b[H", 4);
 }
 
-int main() {
+char readKey()
+{
+  int nread;
+  char c;
+  while ((nread = read(STDIN_FILENO, &c, 1) != 1))
+  {
+    if (nread == -1 && errno != EAGAIN)
+      f("while read");
+  }
+  return c;
+}
+
+void processKeypress()
+{
+  char c = readKey();
+
+  if (c == WITH_CTRL('q'))
+  {
+    exit(0);
+    return;
+  }
+}
+
+int main()
+{
   enableRawMode();
+
   while (1)
   {
     clearScreen();
-    char c = '\0';
-    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
-      f("read");
-
-    if (c == WITH_CTRL('q'))
-      break;
-
-    if (iscntrl(c))
-    //  ^ checks if character is a 'control character'
-    {
-      // print the ASCII of the control character
-      printf("%d\n", c);
-    }
-    else
-    {
-      // print both the ASCII and the character of the printable character
-      printf("%d ('%c')\n", c, c);
-    }
+    processKeypress();
   }
 
   return 0;
